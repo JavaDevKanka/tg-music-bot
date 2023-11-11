@@ -1,0 +1,18 @@
+telegram:
+  bot-name: "@quizz_java_bot"
+  bot-token: "5922259665:AAFOKzJCcltfkM7oL07x3U9IYsOetZGOWOQ"
+
+server:
+  port: 8091
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/musicbot
+    username: postgres
+    password: postgres
+    hikari:
+      schema: mbt
+  jpa:
+    hibernate:
+      ddl-auto: validate
+      dialect: org.hibernate.dialect.PostgreSQLDialect
