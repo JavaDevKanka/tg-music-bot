@@ -2,7 +2,9 @@ package ru.konkatenazia.tgmusicbot.services;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.konkatenazia.tgmusicbot.services.processors.BotProcessor;
+import org.telegram.telegrambots.meta.api.objects.File;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
+import ru.konkatenazia.tgmusicbot.processors.BotProcessor;
 
 @Service
 @RequiredArgsConstructor
@@ -10,7 +12,7 @@ public class MusicService {
     private final BotProcessor botProcessor;
 
     public void sendAudioMessage(String chatId) {
-        botProcessor.sendMessage(chatId, "someMessage");
+        botProcessor.sendAudio(chatId, new InputFile());
     }
 
 }
