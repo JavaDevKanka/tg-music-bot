@@ -1,10 +1,9 @@
 services:
   postgres:
-    image: 'postgres:latest'
+    image: 'postgres:14-alpine'
     environment:
-      - POSTGRES_DB=musicbot
+      - POSTGRES_DB=music_bot
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_SCHEMA=mbt
     ports:
       - '5432:5432'

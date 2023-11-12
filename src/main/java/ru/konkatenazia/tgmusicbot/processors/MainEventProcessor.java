@@ -23,7 +23,5 @@ public class MainEventProcessor {
             musicService.sendAudioMessage(callbackChatId);
         }
 
-
-
     }
 }
