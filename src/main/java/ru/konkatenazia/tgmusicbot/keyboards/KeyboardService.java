@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import ru.konkatenazia.tgmusicbot.processors.BotProcessor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +12,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class KeyboardService {
-    public SendMessage getMainKeyboard(String chatId) {
+    public SendMessage getMainKeyboard(Long chatId) {
         var message = new SendMessage();
         message.setChatId(chatId);
         message.setText("main keyboard");
