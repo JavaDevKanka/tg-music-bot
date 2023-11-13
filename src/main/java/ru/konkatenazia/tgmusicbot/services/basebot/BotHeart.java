@@ -49,10 +49,12 @@ public class BotHeart extends TelegramLongPollingBot {
         }
     }
 
-    public void sendMessage(Long chatId, String message) {
+    public void sendMessage(Long chatId, String message, Integer messageId) {
         var stringId = String.valueOf(chatId);
+        SendMessage sMessage = new SendMessage(stringId, message);
+        sMessage.setReplyToMessageId(messageId);
         try {
-            execute(new SendMessage(stringId, message));
+            execute(sMessage);
         } catch (TelegramApiException e) {
             log.error(e.getMessage());
         }

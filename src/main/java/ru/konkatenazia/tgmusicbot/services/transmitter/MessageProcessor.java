@@ -2,6 +2,7 @@ package ru.konkatenazia.tgmusicbot.services.transmitter;
 
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import ru.konkatenazia.tgmusicbot.dto.enums.InsultResponses;
 import ru.konkatenazia.tgmusicbot.repository.SwearWordRepository;
 import ru.konkatenazia.tgmusicbot.services.basebot.BotHeart;
 
@@ -15,9 +16,10 @@ public record MessageProcessor(
     public void processMessage(Message message) {
         var chatId = message.getChatId();
         var messageText = message.getText();
+        var messageId = message.getMessageId();
 
         if (containsSwearWord(messageText)) {
-            botHeart.sendMessage(chatId, "Не сквернословь, какашка!!!");
+            botHeart.sendMessage(chatId, InsultResponses.getRandomResponse().getResponse(), messageId);
         }
 
     }
