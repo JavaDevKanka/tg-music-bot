@@ -1,15 +1,15 @@
 package ru.konkatenazia.tgmusicbot.services.transmitter;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import ru.konkatenazia.tgmusicbot.services.MusicService;
 
 @Component
-@RequiredArgsConstructor
-public class CallbackProcessor {
+public record CallbackProcessor(
+        MusicService musicService
+) {
 
     public void processCallback(CallbackQuery callback) {
-
 
     }
 }

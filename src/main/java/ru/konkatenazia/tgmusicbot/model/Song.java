@@ -30,8 +30,6 @@ public class Song {
     @Id
     private UUID id;
 
-    private String name;
-
     @CreationTimestamp
     private LocalDateTime created;
 
@@ -41,6 +39,6 @@ public class Song {
     private TimeStamp releaseDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "music", referencedColumnName = "id",nullable = false)
+    @JoinColumn(name = "music_id", referencedColumnName = "id",nullable = false)
     private Music music;
 }

@@ -2,35 +2,27 @@ package ru.konkatenazia.tgmusicbot.services.transmitter;
 
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Message;
-import ru.konkatenazia.tgmusicbot.dto.enums.InsultResponses;
-import ru.konkatenazia.tgmusicbot.repository.SwearWordRepository;
-import ru.konkatenazia.tgmusicbot.services.basebot.BotHeart;
-
-import java.util.Locale;
+import ru.konkatenazia.tgmusicbot.services.MusicService;
+import ru.konkatenazia.tgmusicbot.services.SwearWordService;
 
 @Component
 public record MessageProcessor(
-        BotHeart botHeart,
-        SwearWordRepository swearWordRepository) {
+        SwearWordService swearWordService,
+        MusicService musicService
+        ) {
 
     public void processMessage(Message message) {
-        var chatId = message.getChatId();
-        var messageText = message.getText();
-        var messageId = message.getMessageId();
-
-        if (containsSwearWord(messageText)) {
-            botHeart.sendMessage(chatId, InsultResponses.getRandomResponse().getResponse(), messageId);
+        if (message.getText() != null) {
+            swearWordService.checkForBadWords(message);
         }
 
-    }
-
-    public boolean containsSwearWord(String messageText) {
-        String[] words = messageText.toLowerCase(Locale.ROOT).split("[,\\s]+");
-        for (String word : words) {
-            if (swearWordRepository.existsByWord(word)) {
-                return true;
+        if (message.getCaption() != null && message.hasDocument()) {
+            if (message.getCaption().equals("Сохранить музыку")) {
+                musicService.unpackAndSaveMusic(message);
             }
+
         }
-        return false;
     }
+
+
 }

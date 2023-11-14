@@ -5,9 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendAudio;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.File;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
@@ -60,17 +62,37 @@ public class BotHeart extends TelegramLongPollingBot {
         }
     }
 
-    public void sendAudio(String chatId, InputFile inputFile) {
+    public void sendMessage(SendMessage message) {
         try {
-            execute(new SendAudio(chatId, inputFile));
+            execute(message);
         } catch (TelegramApiException e) {
             log.error(e.getMessage());
         }
     }
 
-    public void sendMessage(SendMessage message) {
+    public void sendMessage(Long chatId, String message) {
+        var stringId = String.valueOf(chatId);
+        SendMessage sMessage = new SendMessage(stringId, message);
         try {
-            execute(message);
+            execute(sMessage);
+        } catch (TelegramApiException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    public File executeGetFile(GetFile file) {
+        File fileResult = null;
+        try {
+            fileResult = execute(file);
+        } catch (TelegramApiException e) {
+            log.error(e.getMessage());
+        }
+        return fileResult;
+    }
+
+    public void sendAudio(String chatId, InputFile inputFile) {
+        try {
+            execute(new SendAudio(chatId, inputFile));
         } catch (TelegramApiException e) {
             log.error(e.getMessage());
         }

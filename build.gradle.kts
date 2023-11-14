@@ -15,6 +15,7 @@ java.sourceCompatibility = JavaVersion.VERSION_17
 java.targetCompatibility = JavaVersion.VERSION_17
 
 dependencies {
+    implementation("org.apache.commons:commons-compress:1.24.0")
     implementation("org.telegram:telegrambots-spring-boot-starter:${telegram}")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
