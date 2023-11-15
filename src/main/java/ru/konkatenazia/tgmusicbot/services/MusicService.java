@@ -1,107 +1,67 @@
 package ru.konkatenazia.tgmusicbot.services;
 
 
-import org.apache.commons.compress.archivers.sevenz.SevenZFile;
-import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
-import org.apache.commons.compress.archivers.ArchiveEntry;
-import org.apache.commons.compress.archivers.ArchiveException;
-import org.apache.commons.compress.archivers.ArchiveInputStream;
-import org.apache.commons.compress.archivers.ArchiveStreamFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.jaudiotagger.audio.AudioFile;
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.tag.FieldKey;
+import org.jaudiotagger.tag.Tag;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.methods.GetFile;
-import org.telegram.telegrambots.meta.api.objects.Document;
+import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import ru.konkatenazia.tgmusicbot.model.Music;
+import ru.konkatenazia.tgmusicbot.model.Song;
 import ru.konkatenazia.tgmusicbot.repository.MusicRepository;
 import ru.konkatenazia.tgmusicbot.repository.SongRepository;
 import ru.konkatenazia.tgmusicbot.services.basebot.BotHeart;
+import ru.konkatenazia.tgmusicbot.services.fileoperation.FileOperationService;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 
 @Service
-public record MusicService(
-        BotHeart botHeart,
-        MusicRepository musicRepository,
-        SongRepository songRepository
-) {
+@Slf4j
+@RequiredArgsConstructor
+public class MusicService {
 
-    private static final String MUSIC_ARCHIVE_PATH = "music-files/archive";
-    private static final String UNPACKED_MUSIC_PATH = "music-files/music";
+    private final BotHeart botHeart;
+    private final MusicRepository musicRepository;
+    private final SongRepository songRepository;
+    private final FileOperationService fileOperationService;
+
+    @Transactional
     public void unpackAndSaveMusic(Message message) {
-        saveArchiveFile(message, MUSIC_ARCHIVE_PATH);
-//        extractArchive();
-        botHeart.sendMessage(message.getChatId(), "Файлы распакованы и сохранены");
-    }
+
+        var archivePathAndName = fileOperationService.saveArchiveFileAndGetFileName(message);
+        var songPathAndName = fileOperationService.extractMp3FromArchiveAndGetPathAndNameOfFile(archivePathAndName);
+        botHeart.sendMessage(message.getChatId(), songPathAndName);
+        try {
+            AudioFile audioFile = AudioFileIO.read(new File(songPathAndName));
+            Tag tag = audioFile.getTag();
+
+            String title = tag.getFirst(FieldKey.TITLE);
+            String author = tag.getFirst(FieldKey.ARTIST);
+            String genre = tag.getFirst(FieldKey.GENRE);
+
+            log.info(title + " : title");
+            log.info(author + " : author");
+            log.info(genre + " : genre");
+
+            Music music = new Music();
+            music.setAuthor(author);
+            music.setGenre(genre);
+
+            var savedMusic = musicRepository.save(music);
+
+            Song song = new Song();
+            song.setSongName(title);
+            song.setMusic(savedMusic);
+            songRepository.save(song);
 
 
-    public void saveArchiveFile(Message message, String saveDirectory) {
-        if (message.hasDocument()) {
-            Document document = message.getDocument();
-            if (document.getMimeType().equals("application/x-7z-compressed")) {
-                String fileId = document.getFileId();
-                String fileName = document.getFileName();
-                try {
-                    GetFile getFile = new GetFile();
-                    getFile.setFileId(fileId);
-                    org.telegram.telegrambots.meta.api.objects.File file = botHeart.execute(getFile);
-
-                    InputStream inputStream = botHeart.downloadFileAsStream(file.getFilePath());
-                    Path savePath = Path.of(saveDirectory, fileName);
-                    Files.copy(inputStream, savePath, StandardCopyOption.REPLACE_EXISTING);
-
-                    System.out.println("Archive file saved successfully: " + savePath);
-                } catch (TelegramApiException | IOException e) {
-                    System.out.println("Error saving archive file: " + e.getMessage());
-                }
-            } else {
-                System.out.println("Message does not contain an archive file.");
-            }
-        } else {
-            System.out.println("Message does not contain a document.");
-        }
-    }
-
-    public void extractArchive() {
-        try (FileInputStream fis = new FileInputStream(MUSIC_ARCHIVE_PATH);
-             ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream(fis)) {
-
-            ArchiveEntry entry;
-            while ((entry = ais.getNextEntry()) != null) {
-                if (!ais.canReadEntryData(entry)) {
-                    continue;
-                }
-
-                String entryName = entry.getName();
-                File outputFile = new File(UNPACKED_MUSIC_PATH, entryName);
-
-                if (entry.isDirectory()) {
-                    if (!outputFile.exists()) {
-                        var outputFileVar = outputFile.mkdirs();
-                    }
-                } else {
-                    File parentDir = outputFile.getParentFile();
-                    if (!parentDir.exists()) {
-                        var parentDirVar= parentDir.mkdirs();
-                    }
-
-                    try (FileOutputStream fos = new FileOutputStream(outputFile)) {
-                        byte[] buffer = new byte[1024];
-                        int length;
-                        while ((length = ais.read(buffer)) != -1) {
-                            fos.write(buffer, 0, length);
-                        }
-                    }
-                }
-            }
-        } catch (IOException | ArchiveException e) {
-            throw new RuntimeException("Не удалось распаковать и сохранить Audio : " + e);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new RuntimeException("Не удалось получить метаданные из песни !");
         }
     }
 

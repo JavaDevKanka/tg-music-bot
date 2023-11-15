@@ -5,12 +5,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.konkatenazia.tgmusicbot.dto.enums.Country;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import java.util.UUID;
@@ -24,15 +24,10 @@ import java.util.UUID;
 public class Music {
 
     @Id
+    @GeneratedValue
     private UUID id;
 
-    private String songName;
+    private String genre;
 
     private String author;
-
-    @Enumerated(EnumType.STRING)
-    private Country country;
-
-    @ManyToOne(cascade = CascadeType.ALL)
-    private Song song;
 }

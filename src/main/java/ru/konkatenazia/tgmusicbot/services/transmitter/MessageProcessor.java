@@ -1,15 +1,17 @@
 package ru.konkatenazia.tgmusicbot.services.transmitter;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.konkatenazia.tgmusicbot.services.MusicService;
 import ru.konkatenazia.tgmusicbot.services.SwearWordService;
 
 @Component
-public record MessageProcessor(
-        SwearWordService swearWordService,
-        MusicService musicService
-        ) {
+@RequiredArgsConstructor
+public class MessageProcessor {
+
+    private final SwearWordService swearWordService;
+    private final MusicService musicService;
 
     public void processMessage(Message message) {
         if (message.getText() != null) {

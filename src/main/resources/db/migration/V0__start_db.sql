@@ -1,22 +1,20 @@
 create table IF NOT EXISTS music
 (
     id      uuid        not null primary key,
-    song_name varchar(230) not null unique,
-    author  varchar(85) not null,
-    country varchar(35) not null
+    genre        varchar(50)  not null,
+    author  varchar(85) not null unique
 );
 
 create table IF NOT EXISTS song
 (
-    id           uuid         not null primary key,
+    id           uuid      not null primary key,
+    song_name varchar(230) not null unique,
     created      timestamp    not null,
-    style        varchar(50)  not null,
-    release_date timestamp    not null,
     music_id uuid references music(id)
 );
 
-create index MBT_STYLE_IDX on song (style);
-create index MBT_NAME_IDX on music (song_name);
+create index MBT_STYLE_IDX on music(genre);
+create index MBT_NAME_IDX on song (song_name);
 
 create table IF NOT EXISTS swear_word(
     id bigserial not null primary key,
