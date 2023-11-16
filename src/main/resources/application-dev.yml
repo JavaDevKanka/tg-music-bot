@@ -12,6 +12,10 @@ springfox:
         path: /api-docs
 
 spring:
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
   datasource:
     url: jdbc:postgresql://localhost:5432/music_bot
     username: postgres

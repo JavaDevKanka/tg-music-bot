@@ -11,7 +11,6 @@ import ru.konkatenazia.tgmusicbot.services.SwearWordService;
 public class MessageProcessor {
 
     private final SwearWordService swearWordService;
-    private final MusicService musicService;
 
     public void processMessage(Message message) {
         if (message.getText() != null) {
