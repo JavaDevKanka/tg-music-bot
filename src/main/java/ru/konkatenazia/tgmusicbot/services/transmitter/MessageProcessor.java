@@ -17,13 +17,6 @@ public class MessageProcessor {
         if (message.getText() != null) {
             swearWordService.checkForBadWords(message);
         }
-
-        if (message.getCaption() != null && message.hasDocument()) {
-            if (message.getCaption().equals("Сохранить музыку")) {
-                musicService.unpackAndSaveMusic(message);
-            }
-
-        }
     }
 
 

@@ -5,6 +5,12 @@ telegram:
 server:
   port: 8091
 
+springfox:
+  documentation:
+    swagger:
+      v2:
+        path: /api-docs
+
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/music_bot
