@@ -15,8 +15,9 @@ java.sourceCompatibility = JavaVersion.VERSION_17
 java.targetCompatibility = JavaVersion.VERSION_17
 
 dependencies {
+    implementation("com.google.cloud:google-cloud-translate:2.30.0")
     implementation("org:jaudiotagger:2.0.3")
-    implementation ("org.tukaani:xz:1.8")
+    implementation("org.tukaani:xz:1.9")
     implementation("org.apache.commons:commons-compress:1.24.0")
     implementation("org.telegram:telegrambots-spring-boot-starter:${telegram}")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")

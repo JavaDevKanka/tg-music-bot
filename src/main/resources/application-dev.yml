@@ -5,6 +5,12 @@ telegram:
 server:
   port: 8091
 
+file:
+  archive:
+    path: music-files/archive
+  music:
+    path: music-files/music
+
 springfox:
   documentation:
     swagger:
@@ -14,8 +20,8 @@ springfox:
 spring:
   servlet:
     multipart:
-      max-file-size: 100MB
-      max-request-size: 100MB
+      max-file-size: 150MB
+      max-request-size: 150MB
   datasource:
     url: jdbc:postgresql://localhost:5432/music_bot
     username: postgres
