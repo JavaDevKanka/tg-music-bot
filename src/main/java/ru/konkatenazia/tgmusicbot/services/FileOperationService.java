@@ -40,6 +40,15 @@ public class FileOperationService {
     public String saveArchiveAndGetAbsPath(MultipartFile musicArchive) {
         try {
             byte[] bytes = musicArchive.getBytes();
+
+            File musicArchiveDir = new File(MUSIC_ARCHIVE_PATH);
+            if (!musicArchiveDir.exists()) {
+                boolean created = musicArchiveDir.mkdirs();
+                if (!created) {
+                    throw new RuntimeException("Не удалось создать директорию для архивов музыки");
+                }
+            }
+
             File outputFile = new File(MUSIC_ARCHIVE_PATH, Objects.requireNonNull(musicArchive.getOriginalFilename()));
             if (!outputFile.exists()) {
                 BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(outputFile));
@@ -47,11 +56,11 @@ public class FileOperationService {
                 stream.close();
                 return outputFile.getAbsolutePath();
             }
-            log.warn("Файл с именем {} уже сохранен", outputFile.getName());
+            log.warn("Файл с именем \"{}\" уже сохранен", outputFile.getName());
             return null;
         } catch (Exception e) {
             log.error(e.getMessage());
-            throw new RuntimeException("Не удалось сохранить файл " + musicArchive.getName());
+            throw new RuntimeException("Не удалось сохранить файл \"" + musicArchive.getName() + "\"");
         }
     }
 
@@ -64,7 +73,7 @@ public class FileOperationService {
     public List<String> extractArchiveAndGetAbsPath(String archiveName) {
         List<String> unpackedSongsAbsPaths = new ArrayList<>();
         if (!archiveName.endsWith(".7z")) {
-            return null;
+            log.info("Файл с именем \"" + archiveName + "\" не является архивом *.7z");
         }
         try (SevenZFile sevenZFile = new SevenZFile(new File(archiveName))) {
             SevenZArchiveEntry entry;
@@ -74,6 +83,16 @@ public class FileOperationService {
                 }
 
                 String entryName = entry.getName();
+                log.info("Распаковывается файл \"{}\"", entryName);
+
+                File unpackedMusicDir = new File(UNPACKED_MUSIC_PATH);
+                if (!unpackedMusicDir.exists()) {
+                    boolean created = unpackedMusicDir.mkdirs();
+                    if (!created) {
+                        throw new RuntimeException("Не удалось создать директорию для распакованной музыки");
+                    }
+                }
+
                 File outputFile = new File(UNPACKED_MUSIC_PATH, entryName);
 
                 File parentDir = outputFile.getParentFile();
@@ -94,8 +113,8 @@ public class FileOperationService {
                 unpackedSongsAbsPaths.add(outputFile.getAbsolutePath());
             }
         } catch (IOException e) {
-            log.error(e.getMessage());
-            return null;
+            log.error("Не удалось распаковать архив \"{}\"", archiveName);
+            throw new RuntimeException(e.getMessage());
         }
         return unpackedSongsAbsPaths;
     }

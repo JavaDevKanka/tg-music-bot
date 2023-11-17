@@ -7,9 +7,16 @@ server:
 
 file:
   archive:
-    path: music-files/archive
+    path: ./music-files/archive
   music:
-    path: music-files/music
+    path: ./music-files/music
+
+async:
+  pool:
+    corePoolSize: 20
+    maxPoolSize: 100
+    aliveTimeout: 60
+    queueSize: 70
 
 springfox:
   documentation:
