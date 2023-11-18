@@ -1,13 +1,9 @@
 package ru.konkatenazia.tgmusicbot.services;
 
-import com.detectlanguage.DetectLanguage;
-import com.detectlanguage.Result;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.konkatenazia.tgmusicbot.dto.enums.InsultResponses;
 import ru.konkatenazia.tgmusicbot.repository.SwearWordRepository;
 import ru.konkatenazia.tgmusicbot.services.basebot.BotHeart;
@@ -18,8 +14,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Component
 @Slf4j
@@ -29,36 +26,44 @@ public class MessageProcessingService {
     private final SwearWordRepository swearWordRepository;
     private final BotHeart botHeart;
 
-    @Value("${API_KEY}")
-    private String apiKey;
-
-    public void checkForBadWords(Message message) {
-        var chatId = message.getChatId();
-        var messageText = message.getText();
-        var messageId = message.getMessageId();
+    public void checkForBadWords(Long chatId, String messageText, Integer messageId) {
         String[] words = messageText.toLowerCase(Locale.ROOT).split("[,\\s]+");
-        for (String word : words) {
-            if (swearWordRepository.existsByWord(word)) {
-                botHeart.sendMessage(chatId, InsultResponses.getRandomResponse().getResponse(), messageId);
-            }
+        if (swearWordRepository.existsByWordInIgnoreCase(words)) {
+            botHeart.sendMessage(chatId, InsultResponses.getRandomResponse().getResponse(), messageId);
         }
     }
 
     @SneakyThrows
-    public void checkKeyboardLayoutIsCorrectly(Message message) {
-        var chatId = message.getChatId();
-        var messageText = message.getText();
-        var messageId = message.getMessageId();
-        DetectLanguage.apiKey = apiKey;
-
-        List<Result> results = DetectLanguage.detect(messageText);
-        Result result = results.get(0);
-        if (result.language.equals("en")) {
+    public void checkKeyboardLayoutIsCorrectly(Long chatId, String messageText, Integer messageId) {
+        if (detectLanguage(messageText).equals("Английский")) {
             var invertedText = invertKeyboardLayout(messageText, "eng2rus");
-            List<Result> resultsInverted = DetectLanguage.detect(invertedText);
-            if (!resultsInverted.isEmpty() && resultsInverted.get(0).language.equals("ru")) {
-                botHeart.sendMessage(chatId, invertedText, messageId);
-            }
+            botHeart.sendMessage(chatId, invertedText, messageId);
+            checkForBadWords(chatId, invertedText, messageId);
+        }
+    }
+
+    public String detectLanguage(String text) {
+        String regex = "[a-zA-Z]+";
+        regex += "|[а-яА-ЯёЁ]+";
+
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(text);
+
+        if (matcher.find()) {
+            String language = matcher.group();
+            return getLanguageName(language);
+        }
+
+        return "Не удалось определить язык";
+    }
+
+    private String getLanguageName(String language) {
+        if (language.matches("[a-zA-Z]+")) {
+            return "Английский";
+        } else if (language.matches("[а-яА-ЯёЁ]+")) {
+            return "Русский";
+        } else {
+            return "Неизвестный язык";
         }
     }
 

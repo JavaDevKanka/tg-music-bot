@@ -13,8 +13,11 @@ public class MessageProcessor {
 
     public void processMessage(Message message) {
         if (message.getText() != null) {
-            messageProcessingService.checkForBadWords(message);
-            messageProcessingService.checkKeyboardLayoutIsCorrectly(message);
+            var chatId = message.getChatId();
+            var messageText = message.getText();
+            var messageId = message.getMessageId();
+            messageProcessingService.checkForBadWords(chatId, messageText, messageId);
+            messageProcessingService.checkKeyboardLayoutIsCorrectly(chatId, messageText, messageId);
         }
     }
 

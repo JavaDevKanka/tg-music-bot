@@ -5,5 +5,5 @@ import ru.konkatenazia.tgmusicbot.model.SwearWord;
 
 public interface SwearWordRepository extends JpaRepository<SwearWord, Long> {
 
-    boolean existsByWord(String word);
+    boolean existsByWordInIgnoreCase(String[] word);
 }
