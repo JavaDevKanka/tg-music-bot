@@ -6,10 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.konkatenazia.tgmusicbot.dto.enums.InsultResponses;
 import ru.konkatenazia.tgmusicbot.repository.SwearWordRepository;
-import ru.konkatenazia.tgmusicbot.services.basebot.BotHeart;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -24,22 +22,13 @@ import java.util.regex.Pattern;
 public class MessageProcessingService {
 
     private final SwearWordRepository swearWordRepository;
-    private final BotHeart botHeart;
 
-    public void checkForBadWords(Long chatId, String messageText, Integer messageId) {
+    public String checkForBadWords(String messageText) {
         String[] words = messageText.toLowerCase(Locale.ROOT).split("[,\\s]+");
         if (swearWordRepository.existsByWordInIgnoreCase(words)) {
-            botHeart.sendMessage(chatId, InsultResponses.getRandomResponse().getResponse(), messageId);
+            return InsultResponses.getRandomResponse().getResponse();
         }
-    }
-
-    @SneakyThrows
-    public void checkKeyboardLayoutIsCorrectly(Long chatId, String messageText, Integer messageId) {
-        if (detectLanguage(messageText).equals("Английский")) {
-            var invertedText = invertKeyboardLayout(messageText, "eng2rus");
-            botHeart.sendMessage(chatId, invertedText, messageId);
-            checkForBadWords(chatId, invertedText, messageId);
-        }
+        return null;
     }
 
     public String detectLanguage(String text) {
@@ -53,7 +42,6 @@ public class MessageProcessingService {
             String language = matcher.group();
             return getLanguageName(language);
         }
-
         return "Не удалось определить язык";
     }
 
@@ -67,13 +55,14 @@ public class MessageProcessingService {
         }
     }
 
-    public String invertKeyboardLayout(String text, String direction) throws IOException {
+    @SneakyThrows
+    public String invertKeyboardLayout(String text) {
         String url = "https://raskladki.net.ru/post.php";
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
         con.setRequestMethod("POST");
         con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-        String params = "text=" + text + "&lang=" + direction;
+        String params = "text=" + text + "&lang=" + "eng2rus";
         con.setDoOutput(true);
         OutputStream os = con.getOutputStream();
         os.write(params.getBytes());
