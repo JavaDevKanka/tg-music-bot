@@ -12,6 +12,12 @@ import ru.konkatenazia.tgmusicbot.dto.enums.InsultResponses;
 import ru.konkatenazia.tgmusicbot.repository.SwearWordRepository;
 import ru.konkatenazia.tgmusicbot.services.basebot.BotHeart;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.List;
 import java.util.Locale;
 
@@ -38,22 +44,45 @@ public class MessageProcessingService {
         }
     }
 
+    @SneakyThrows
     public void checkKeyboardLayoutIsCorrectly(Message message) {
         var chatId = message.getChatId();
         var messageText = message.getText();
         var messageId = message.getMessageId();
-
-        botHeart.sendMessage(chatId, isRussianText(messageText));
-    }
-
-    @SneakyThrows
-    private String isRussianText(String text) {
         DetectLanguage.apiKey = apiKey;
 
-        List<Result> results = DetectLanguage.detect(text);
+        List<Result> results = DetectLanguage.detect(messageText);
         Result result = results.get(0);
-        System.out.println(result.language);
-        return "";
+        if (result.language.equals("en")) {
+            var invertedText = invertKeyboardLayout(messageText, "eng2rus");
+            List<Result> resultsInverted = DetectLanguage.detect(invertedText);
+            if (!resultsInverted.isEmpty() && resultsInverted.get(0).language.equals("ru")) {
+                botHeart.sendMessage(chatId, invertedText, messageId);
+            }
+        }
+    }
+
+    public String invertKeyboardLayout(String text, String direction) throws IOException {
+        String url = "https://raskladki.net.ru/post.php";
+        URL obj = new URL(url);
+        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+        con.setRequestMethod("POST");
+        con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        String params = "text=" + text + "&lang=" + direction;
+        con.setDoOutput(true);
+        OutputStream os = con.getOutputStream();
+        os.write(params.getBytes());
+        os.flush();
+        os.close();
+        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+        String inputLine;
+        StringBuilder response = new StringBuilder();
+        while ((inputLine = in.readLine()) != null) {
+            response.append(inputLine);
+        }
+        in.close();
+
+        return response.toString();
     }
 }
 

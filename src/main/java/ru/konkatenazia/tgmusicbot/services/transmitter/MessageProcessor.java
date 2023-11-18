@@ -14,7 +14,7 @@ public class MessageProcessor {
     public void processMessage(Message message) {
         if (message.getText() != null) {
             messageProcessingService.checkForBadWords(message);
-//            messageProcessingService.checkKeyboardLayoutIsCorrectly(message);
+            messageProcessingService.checkKeyboardLayoutIsCorrectly(message);
         }
     }
 
