@@ -2,6 +2,10 @@ telegram:
   bot-name: ${BOT_NAME}
   bot-token: ${BOT_TOKEN}
 
+language:
+  detector:
+    api-key: ${API_KEY}
+
 server:
   port: 8091
 

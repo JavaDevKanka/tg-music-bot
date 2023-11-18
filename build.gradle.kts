@@ -15,7 +15,7 @@ java.sourceCompatibility = JavaVersion.VERSION_17
 java.targetCompatibility = JavaVersion.VERSION_17
 
 dependencies {
-    implementation("com.google.cloud:google-cloud-translate:2.30.0")
+    implementation("com.detectlanguage:detectlanguage:1.1.0")
     implementation("org:jaudiotagger:2.0.3")
     implementation("org.tukaani:xz:1.9")
     implementation("org.apache.commons:commons-compress:1.24.0")
