@@ -7,7 +7,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.3"
 }
 
-val telegram = "6.1.0"
+val telegram = "6.8.0"
 val hibernateTypesVersion = "2.20.0"
 val lombokVersion = "1.18.24"
 

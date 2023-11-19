@@ -5,7 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import ru.konkatenazia.tgmusicbot.keyboards.KeyboardService;
+import ru.konkatenazia.tgmusicbot.services.MusicService;
+import ru.konkatenazia.tgmusicbot.services.keyboards.KeyboardService;
 import ru.konkatenazia.tgmusicbot.services.transmitter.CallbackProcessor;
 import ru.konkatenazia.tgmusicbot.services.transmitter.MessageProcessor;
 
@@ -20,26 +21,27 @@ public class MainEventTransmitter {
     private final KeyboardService keyboardService;
     private final CallbackProcessor callbackProcessor;
     private final MessageProcessor messageProcessor;
+    private final MusicService musicService;
 
     @EventListener
     public void processUpdate(Update update) {
         if (update.hasCallbackQuery()) {
             callbackProcessor.processCallback(update.getCallbackQuery());
         }
-
         if (update.hasMessage()) {
-            messageProcessor.processMessage(update.getMessage());
-            if (update.getMessage().hasText()) {
-                var message = update.getMessage();
-                var messageText = message.getText();
+            var message = update.getMessage();
+            messageProcessor.processMessage(message);
 
+            if (update.getMessage().hasText()) {
+                var messageText = message.getText();
                 Map<String, Runnable> commands = new HashMap<>();
-                commands.put("/show", () -> botHeart.sendMessage(keyboardService.getMainKeyboard(message.getChatId())));
-                commands.put("/music", () -> System.out.println("music"));
-                commands.put("/categories", () -> System.out.println("categories"));
-                commands.put("/help", () -> System.out.println("help"));
-                if (commands.containsKey(messageText)) {
-                    commands.get(messageText).run();
+                commands.put("/show", () -> botHeart.sendMessage(keyboardService.getMainKeyboard(message.getChat().getId())));
+                commands.put("/music", () -> botHeart.sendAudio(message.getChat().getId(), musicService.getRandomMusic()));
+                for (String command : commands.keySet()) {
+                    if (messageText.contains(command)) {
+                        commands.get(command).run();
+                        break;
+                    }
                 }
             }
 

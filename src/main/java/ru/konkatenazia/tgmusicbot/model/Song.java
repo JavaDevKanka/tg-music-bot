@@ -34,6 +34,7 @@ public class Song {
 
     private String pathToFile;
 
+    @CreationTimestamp
     private LocalDateTime created;
 
     @ManyToOne(fetch = FetchType.LAZY)

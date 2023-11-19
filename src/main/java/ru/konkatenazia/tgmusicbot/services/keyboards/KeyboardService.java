@@ -1,4 +1,4 @@
-package ru.konkatenazia.tgmusicbot.keyboards;
+package ru.konkatenazia.tgmusicbot.services.keyboards;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

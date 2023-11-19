@@ -33,8 +33,6 @@ public class BotHeart extends TelegramLongPollingBot {
         List<BotCommand> listOfCommands = new ArrayList<>();
         listOfCommands.add(new BotCommand("/show", "Отобразит основную клавиатуру"));
         listOfCommands.add(new BotCommand("/music", "Отправит вам случайную музыку"));
-        listOfCommands.add(new BotCommand("/categories", "Отобразит категории"));
-        listOfCommands.add(new BotCommand("/help", "Инструкция по использованию бота"));
         commandsExecutor(new SetMyCommands(listOfCommands, new BotCommandScopeDefault(), null));
     }
 
@@ -52,9 +50,10 @@ public class BotHeart extends TelegramLongPollingBot {
     }
 
     public void sendMessage(Long chatId, String message, Integer messageId) {
-        var stringId = String.valueOf(chatId);
-        SendMessage sMessage = new SendMessage(stringId, message);
+        SendMessage sMessage = new SendMessage();
         sMessage.setReplyToMessageId(messageId);
+        sMessage.setChatId(chatId);
+        sMessage.setText(message);
         try {
             execute(sMessage);
         } catch (TelegramApiException e) {
@@ -71,8 +70,9 @@ public class BotHeart extends TelegramLongPollingBot {
     }
 
     public void sendMessage(Long chatId, String message) {
-        var stringId = String.valueOf(chatId);
-        SendMessage sMessage = new SendMessage(stringId, message);
+        SendMessage sMessage = new SendMessage();
+        sMessage.setChatId(chatId);
+        sMessage.setText(message);
         try {
             execute(sMessage);
         } catch (TelegramApiException e) {
@@ -90,9 +90,12 @@ public class BotHeart extends TelegramLongPollingBot {
         return fileResult;
     }
 
-    public void sendAudio(String chatId, InputFile inputFile) {
+    public void sendAudio(Long chatId, InputFile inputFile) {
+        SendAudio audio = new SendAudio();
+        audio.setAudio(inputFile);
+        audio.setChatId(chatId);
         try {
-            execute(new SendAudio(chatId, inputFile));
+            execute(audio);
         } catch (TelegramApiException e) {
             log.error(e.getMessage());
         }

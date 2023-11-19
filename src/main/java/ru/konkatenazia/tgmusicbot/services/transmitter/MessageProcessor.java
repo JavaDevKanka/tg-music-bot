@@ -15,13 +15,13 @@ public class MessageProcessor {
 
     public void processMessage(Message message) {
         if (message.getText() != null) {
-            var chatId = message.getChatId();
+            var chatId = message.getChat().getId();
             var messageText = message.getText();
             var messageId = message.getMessageId();
             if (messageProcessingService.checkForBadWords(messageText) != null) {
                 botHeart.sendMessage(chatId, messageProcessingService.checkForBadWords(messageText), messageId);
             }
-            if (messageProcessingService.detectLanguage(messageText).equals("Английский")) {
+            if (messageProcessingService.detectLanguage(messageText).equals("Английский") && !messageText.startsWith("/")) {
                 botHeart.sendMessage(chatId, messageProcessingService.invertKeyboardLayout(messageText));
             }
         }

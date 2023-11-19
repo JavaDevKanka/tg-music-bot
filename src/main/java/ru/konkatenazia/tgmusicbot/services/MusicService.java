@@ -6,10 +6,9 @@ import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import ru.konkatenazia.tgmusicbot.model.Music;
 import ru.konkatenazia.tgmusicbot.model.Song;
 import ru.konkatenazia.tgmusicbot.repository.MusicRepository;
@@ -19,7 +18,6 @@ import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 @Service
 @Slf4j
@@ -27,6 +25,13 @@ import java.util.concurrent.CompletableFuture;
 public class MusicService {
     private final MusicRepository musicRepository;
     private final SongRepository songRepository;
+
+    public InputFile getRandomMusic() {
+        var randomSongPath = songRepository.getRandomSong();
+        InputFile file = new InputFile();
+        file.setMedia(new File(randomSongPath));
+        return file;
+    }
 
     @Transactional
     public void extractMusicDataToDb(List<String> musicPaths) {
@@ -44,14 +49,11 @@ public class MusicService {
             var genre = tag.getFirst(FieldKey.GENRE);
             var songName = tag.getFirst(FieldKey.TITLE);
             var album = tag.getFirst(FieldKey.ALBUM);
-            LocalDate date = LocalDate.parse(tag.getFirst(FieldKey.YEAR));
-            LocalDateTime dateTime = date.atStartOfDay();
             var song = Song.builder();
             var songFromDb = songRepository.getBySongName(songName);
             if (songFromDb == null) {
                 song.songName(songName)
                         .album(album)
-                        .created(dateTime)
                         .pathToFile(filePath);
                 var music = Music.builder();
                 var musicFromDb = musicRepository.getFirstByAuthorAndGenre(author, genre);
