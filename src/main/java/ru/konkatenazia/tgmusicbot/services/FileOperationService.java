@@ -25,6 +25,25 @@ public class FileOperationService {
     @Value("${file.music.path}")
     private String UNPACKED_MUSIC_PATH;
 
+    public void removeUnpackedArchives(List<String> pathsToArchive) {
+        pathsToArchive.forEach(this::removeUnpackedArchive);
+    }
+
+    public void removeUnpackedArchive(String pathToArchive) {
+        File file = new File(pathToArchive);
+        var fileName = file.getName();
+        if (file.exists()) {
+            boolean deleted = file.delete();
+            if (deleted) {
+                log.info("Архив \"{}\" был удален после распаковки.", fileName);
+            } else {
+                log.info("Архив \"{}\" удалить не удалось.", fileName);
+            }
+        } else {
+            log.info("Файл \"{}\" не существует", fileName);
+        }
+    }
+
     public List<String> saveArchivesAndGetAbsPaths(MultipartFile[] musicArchives) {
         List<String> result = new ArrayList<>();
         for (MultipartFile file : musicArchives) {
@@ -83,34 +102,36 @@ public class FileOperationService {
                 }
 
                 String entryName = entry.getName();
-                log.info("Распаковывается файл \"{}\"", entryName);
+                if (entryName.endsWith(".flac") || entryName.endsWith(".mp3")) {
+                    log.info("Распаковывается файл \"{}\"", entryName);
 
-                File unpackedMusicDir = new File(UNPACKED_MUSIC_PATH);
-                if (!unpackedMusicDir.exists()) {
-                    boolean created = unpackedMusicDir.mkdirs();
-                    if (!created) {
-                        throw new RuntimeException("Не удалось создать директорию для распакованной музыки");
+                    File unpackedMusicDir = new File(UNPACKED_MUSIC_PATH);
+                    if (!unpackedMusicDir.exists()) {
+                        boolean created = unpackedMusicDir.mkdirs();
+                        if (!created) {
+                            throw new RuntimeException("Не удалось создать директорию для распакованной музыки");
+                        }
                     }
-                }
 
-                File outputFile = new File(UNPACKED_MUSIC_PATH, entryName);
+                    File outputFile = new File(UNPACKED_MUSIC_PATH, entryName);
 
-                File parentDir = outputFile.getParentFile();
-                if (!parentDir.exists()) {
-                    var parentDirMk = parentDir.mkdirs();
-                }
-
-                try (FileOutputStream fos = new FileOutputStream(outputFile)) {
-                    byte[] buffer = new byte[1024];
-                    int length;
-                    while ((length = sevenZFile.read(buffer)) != -1) {
-                        fos.write(buffer, 0, length);
+                    File parentDir = outputFile.getParentFile();
+                    if (!parentDir.exists()) {
+                        var parentDirMk = parentDir.mkdirs();
                     }
-                } catch (IOException e) {
-                    log.error(e.getMessage());
-                    return null;
+
+                    try (FileOutputStream fos = new FileOutputStream(outputFile)) {
+                        byte[] buffer = new byte[1024];
+                        int length;
+                        while ((length = sevenZFile.read(buffer)) != -1) {
+                            fos.write(buffer, 0, length);
+                        }
+                    } catch (IOException e) {
+                        log.error(e.getMessage());
+                        return null;
+                    }
+                    unpackedSongsAbsPaths.add(outputFile.getAbsolutePath());
                 }
-                unpackedSongsAbsPaths.add(outputFile.getAbsolutePath());
             }
         } catch (IOException e) {
             log.error("Не удалось распаковать архив \"{}\"", archiveName);

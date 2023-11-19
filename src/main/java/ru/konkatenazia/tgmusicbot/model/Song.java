@@ -30,7 +30,10 @@ public class Song {
 
     private String songName;
 
-    @CreationTimestamp
+    private String album;
+
+    private String pathToFile;
+
     private LocalDateTime created;
 
     @ManyToOne(fetch = FetchType.LAZY)

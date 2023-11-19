@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import ru.konkatenazia.tgmusicbot.services.MusicService;
+import ru.konkatenazia.tgmusicbot.services.async.MusicAsyncService;
 
 import java.util.List;
 
@@ -17,13 +17,13 @@ import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 @RequiredArgsConstructor
 public class MusicController {
 
-    private final MusicService musicService;
+    private final MusicAsyncService musicAsyncService;
 
     @PostMapping(value = "/uploadMusic", consumes = {MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<List<String>> uploadMusic(
             @RequestPart("musicArchive") MultipartFile[] musicArchive) {
         if (musicArchive.length >= 1) {
-            musicService.saveMusic(musicArchive);
+            musicAsyncService.saveMusicAsync(musicArchive);
             return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

@@ -6,4 +6,6 @@ import ru.konkatenazia.tgmusicbot.model.Music;
 import java.util.UUID;
 
 public interface MusicRepository extends JpaRepository<Music, UUID> {
+
+    Music getFirstByAuthorAndGenre(String author, String genre);
 }
