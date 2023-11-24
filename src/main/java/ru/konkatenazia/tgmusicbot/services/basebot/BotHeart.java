@@ -69,6 +69,15 @@ public class BotHeart extends TelegramLongPollingBot {
         }
     }
 
+    public void sendMessage(SendMessage message, Integer messageId) {
+        message.setReplyToMessageId(messageId);
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            log.error(e.getMessage());
+        }
+    }
+
     public void sendMessage(Long chatId, String message) {
         SendMessage sMessage = new SendMessage();
         sMessage.setChatId(chatId);

@@ -23,6 +23,9 @@ public class MusicAsyncService {
 
         for (MultipartFile multipartFile : multipartFiles) {
             var filePath = fileOperationService.saveArchiveAndGetAbsPath(multipartFile);
+            if (filePath == null) {
+                continue;
+            }
             filePaths.add(filePath);
         }
 
@@ -30,7 +33,9 @@ public class MusicAsyncService {
 
         CompletableFuture.runAsync(() -> {
             log.info("Cохранение музыки асинхронно завершено!");
-            musicService.extractMusicDataToDb(extractedFilesPath);
+            for (String musicPath : extractedFilesPath) {
+                musicService.saveMusicMetaData(musicPath);
+            }
         }).thenRun(() -> {
             fileOperationService.removeUnpackedArchives(filePaths);
         });

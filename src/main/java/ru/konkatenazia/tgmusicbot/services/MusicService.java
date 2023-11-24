@@ -15,9 +15,6 @@ import ru.konkatenazia.tgmusicbot.repository.MusicRepository;
 import ru.konkatenazia.tgmusicbot.repository.SongRepository;
 
 import java.io.File;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @Slf4j
@@ -34,14 +31,7 @@ public class MusicService {
     }
 
     @Transactional
-    public void extractMusicDataToDb(List<String> musicPaths) {
-        musicPaths.forEach(System.out::println);
-        for (String musicPath : musicPaths) {
-            extractMetadata(musicPath);
-        }
-    }
-
-    public void extractMetadata(String filePath) {
+    public void saveMusicMetaData(String filePath) {
         try {
             AudioFile audioFile = AudioFileIO.read(new File(filePath));
             Tag tag = audioFile.getTag();
@@ -49,26 +39,30 @@ public class MusicService {
             var genre = tag.getFirst(FieldKey.GENRE);
             var songName = tag.getFirst(FieldKey.TITLE);
             var album = tag.getFirst(FieldKey.ALBUM);
-            var song = Song.builder();
-            var songFromDb = songRepository.getBySongName(songName);
+            Song songFromDb = songRepository.getSongBySongName(songName);
             if (songFromDb == null) {
-                song.songName(songName)
-                        .album(album)
-                        .pathToFile(filePath);
-                var music = Music.builder();
-                var musicFromDb = musicRepository.getFirstByAuthorAndGenre(author, genre);
-                if (musicFromDb != null) {
-                    music.author(musicFromDb.getAuthor())
-                            .genre(musicFromDb.getGenre());
-                } else {
-                    music.author(author)
-                            .genre(genre);
-                }
-                var savedMusic = musicRepository.save(music.build());
-                song.music(savedMusic);
-                songRepository.save(song.build());
-            }
+                Music musicFromDb = musicRepository.getFirstByAuthorAndGenre(author, genre);
+                if (musicFromDb == null) {
+                    Music music = new Music();
+                    music.setGenre(genre);
+                    music.setAuthor(author);
+                    var savedMusic = musicRepository.save(music);
 
+                    Song song = new Song();
+                    song.setSongName(songName);
+                    song.setAlbum(album);
+                    song.setPathToFile(filePath);
+                    song.setMusic(savedMusic);
+                    songRepository.save(song);
+                } else {
+                    Song song = new Song();
+                    song.setSongName(songName);
+                    song.setAlbum(album);
+                    song.setPathToFile(filePath);
+                    song.setMusic(musicFromDb);
+                    songRepository.save(song);
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

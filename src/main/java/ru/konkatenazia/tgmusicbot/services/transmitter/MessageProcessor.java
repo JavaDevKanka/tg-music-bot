@@ -1,6 +1,7 @@
 package ru.konkatenazia.tgmusicbot.services.transmitter;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.konkatenazia.tgmusicbot.services.MessageProcessingService;
@@ -8,6 +9,7 @@ import ru.konkatenazia.tgmusicbot.services.basebot.BotHeart;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class MessageProcessor {
 
     private final MessageProcessingService messageProcessingService;
@@ -15,14 +17,15 @@ public class MessageProcessor {
 
     public void processMessage(Message message) {
         if (message.getText() != null) {
-            var chatId = message.getChat().getId();
+            var chatId = message.getChatId();
             var messageText = message.getText();
             var messageId = message.getMessageId();
             if (messageProcessingService.checkForBadWords(messageText) != null) {
-                botHeart.sendMessage(chatId, messageProcessingService.checkForBadWords(messageText), messageId);
+//                botHeart.sendMessage(chatId, messageProcessingService.checkForBadWords(messageText), messageId);
             }
-            if (messageProcessingService.detectLanguage(messageText).equals("Английский") && !messageText.startsWith("/")) {
-                botHeart.sendMessage(chatId, messageProcessingService.invertKeyboardLayout(messageText));
+            if (messageProcessingService.inEnglishKeyLayout(messageText) && !messageProcessingService.isEnglishWord(messageText) && !messageText.startsWith("http")) {
+                log.info("Тут отправляются переведенные кракозябры, текст был {}.", messageText);
+//                botHeart.sendMessage(chatId, messageProcessingService.invertKeyboardLayout(messageText), messageId);
             }
         }
     }

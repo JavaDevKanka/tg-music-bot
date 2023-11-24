@@ -1,21 +1,21 @@
 create table IF NOT EXISTS music
 (
-    id     uuid        not null primary key,
+    id     bigserial          not null primary key,
     genre  varchar(50) not null,
-    author varchar(85) not null
+    author varchar(85) unique not null
 );
 
 create table IF NOT EXISTS song
 (
-    id        uuid         not null primary key,
-    song_name varchar(230) not null unique,
-    created   timestamp    not null,
-    album     varchar(100) not null,
-    path_to_file varchar not null unique,
-    music_id  uuid references music (id)
+    id           uuid         not null primary key,
+    song_name    varchar(230) not null unique,
+    created      timestamp    not null,
+    album        varchar(100) not null,
+    path_to_file varchar      not null unique,
+    music_id     bigserial references music (id)
 );
 
-create index MBT_STYLE_IDX on music (genre);
+create index MBT_STYLE_AUTHOR_IDX on music (genre, author);
 create index MBT_NAME_IDX on song (song_name);
 
 create table IF NOT EXISTS swear_word
@@ -26,6 +26,9 @@ create table IF NOT EXISTS swear_word
 
 insert into swear_word (word)
 values ('spam'),
+       ('ахуел'),
+       ('пиздит'),
+       ('нахуй'),
        ('аборт'),
        ('анус'),
        ('беспезды'),

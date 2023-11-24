@@ -30,13 +30,14 @@ public class MainEventTransmitter {
         }
         if (update.hasMessage()) {
             var message = update.getMessage();
+            var chatId = message.getChat().getId();
             messageProcessor.processMessage(message);
 
             if (update.getMessage().hasText()) {
                 var messageText = message.getText();
                 Map<String, Runnable> commands = new HashMap<>();
-                commands.put("/show", () -> botHeart.sendMessage(keyboardService.getMainKeyboard(message.getChat().getId())));
-                commands.put("/music", () -> botHeart.sendAudio(message.getChat().getId(), musicService.getRandomMusic()));
+                commands.put("/show", () -> botHeart.sendMessage(keyboardService.getMainKeyboard(chatId)));
+                commands.put("/music", () -> botHeart.sendAudio(chatId, musicService.getRandomMusic()));
                 for (String command : commands.keySet()) {
                     if (messageText.contains(command)) {
                         commands.get(command).run();

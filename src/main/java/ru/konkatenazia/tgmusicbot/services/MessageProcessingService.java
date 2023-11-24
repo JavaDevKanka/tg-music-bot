@@ -3,8 +3,12 @@ package ru.konkatenazia.tgmusicbot.services;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 import ru.konkatenazia.tgmusicbot.dto.enums.InsultResponses;
+import ru.konkatenazia.tgmusicbot.dto.enums.word.WordDTO;
 import ru.konkatenazia.tgmusicbot.repository.SwearWordRepository;
 
 import java.io.BufferedReader;
@@ -12,6 +16,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,29 +38,49 @@ public class MessageProcessingService {
         return null;
     }
 
-    public String detectLanguage(String text) {
-        String regex = "[a-zA-Z]+";
-        regex += "|[а-яА-ЯёЁ]+";
-
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(text);
-
-        if (matcher.find()) {
-            String language = matcher.group();
-            return getLanguageName(language);
-        }
-        return "Не удалось определить язык";
+    public boolean inEnglishKeyLayout(String text) {
+        String regex = "[a-zA-Z\\s\\p{Punct}]+";
+        log.info("Английская ли раскладка {} - {}", text, text.matches(regex));
+        return text.matches(regex);
     }
 
-    private String getLanguageName(String language) {
-        if (language.matches("[a-zA-Z]+")) {
-            return "Английский";
-        } else if (language.matches("[а-яА-ЯёЁ]+")) {
-            return "Русский";
-        } else {
-            return "Неизвестный язык";
+    public boolean isEnglishWord(String wordForCheck) {
+        RestTemplate restTemplate = new RestTemplate();
+        String url = "https://api.dictionaryapi.dev/api/v2/entries/en/";
+
+        Pattern pattern = Pattern.compile("\\b\\w+\\b");
+        Matcher matcher = pattern.matcher(wordForCheck);
+        List<String> splittedWords = new ArrayList<>();
+        while (matcher.find()) {
+            String word = matcher.group();
+            splittedWords.add(word);
         }
+
+        for (String word : splittedWords) {
+            try {
+                ResponseEntity<WordDTO[]> response = restTemplate.getForEntity(url + word, WordDTO[].class);
+                WordDTO[] insultWords = response.getBody();
+
+                if (insultWords != null && response.getStatusCode().is2xxSuccessful()) {
+                    long count = Arrays.stream(insultWords)
+                            .filter(elem -> elem.getMeanings() != null && !elem.getMeanings().isEmpty())
+                            .filter(elem -> elem.getMeanings().get(0).getDefinitions() != null && !elem.getMeanings().get(0).getDefinitions().isEmpty())
+                            .filter(elem -> elem.getMeanings().get(0).getDefinitions().get(0).getDefinition() != null)
+                            .map(elem -> elem.getMeanings().get(0).getDefinitions().get(0).getDefinition())
+                            .distinct()
+                            .count();
+
+                    log.info("Количество строк: {}", count);
+                    return count > 2;
+                }
+            } catch (HttpClientErrorException.NotFound ex) {
+                log.info("Слово не найдено: {}", word);
+            }
+        }
+
+        return false;
     }
+
 
     @SneakyThrows
     public String invertKeyboardLayout(String text) {
