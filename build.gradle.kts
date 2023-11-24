@@ -10,11 +10,17 @@ plugins {
 val telegram = "6.8.0"
 val hibernateTypesVersion = "2.20.0"
 val lombokVersion = "1.18.24"
+val mapstructVersion = "1.5.3.Final"
+val lombokMapstructBindingVersion = "0.2.0"
 
 java.sourceCompatibility = JavaVersion.VERSION_17
 java.targetCompatibility = JavaVersion.VERSION_17
 
 dependencies {
+    implementation("org.mapstruct:mapstruct:${mapstructVersion}")
+    annotationProcessor("org.mapstruct:mapstruct-processor:${mapstructVersion}")
+    testAnnotationProcessor("org.mapstruct:mapstruct-processor:${mapstructVersion}")
+    annotationProcessor("org.projectlombok:lombok-mapstruct-binding:${lombokMapstructBindingVersion}")
     implementation("com.google.cloud:google-cloud-language:2.3.3")
     implementation("com.detectlanguage:detectlanguage:1.1.0")
     implementation("org:jaudiotagger:2.0.3")
