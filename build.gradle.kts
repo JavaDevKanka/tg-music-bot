@@ -12,11 +12,14 @@ val hibernateTypesVersion = "2.20.0"
 val lombokVersion = "1.18.24"
 val mapstructVersion = "1.5.3.Final"
 val lombokMapstructBindingVersion = "0.2.0"
+val shedlockVersion = "4.43.0"
 
 java.sourceCompatibility = JavaVersion.VERSION_17
 java.targetCompatibility = JavaVersion.VERSION_17
 
 dependencies {
+    implementation("net.javacrumbs.shedlock:shedlock-spring:${shedlockVersion}")
+    implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc-template:${shedlockVersion}")
     implementation("org.mapstruct:mapstruct:${mapstructVersion}")
     annotationProcessor("org.mapstruct:mapstruct-processor:${mapstructVersion}")
     testAnnotationProcessor("org.mapstruct:mapstruct-processor:${mapstructVersion}")

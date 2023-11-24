@@ -14,6 +14,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity(name = "swear_accounting")
@@ -29,10 +30,16 @@ public class SwearAccounting {
 
     private String swearWord;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    private Long chatId;
+
+    private Boolean isGroupChat;
+
+    private Boolean isActive;
+
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_table_id", referencedColumnName = "id",nullable = false)
     private ChatUser chatUser;
 
     @CreationTimestamp
-    private LocalDateTime created;
+    private LocalDate created;
 }

@@ -5,6 +5,12 @@ telegram:
 server:
   port: 8091
 
+cron:
+  task:
+    send.swear.result: '0 0 19 * * *'
+#    send.swear.result: '*/10 * * * * *'
+
+
 file:
   archive:
     path: ./music-files/archive

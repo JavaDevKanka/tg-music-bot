@@ -10,5 +10,6 @@ create table if not exists swear_accounting(
     id bigserial not null primary key,
     swear_word varchar(100) not null,
     created timestamp not null,
+    chat_id bigint not null,
     user_table_id bigint references user_table (id)
 );

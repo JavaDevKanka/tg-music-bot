@@ -11,5 +11,8 @@ public abstract class SwearAccountingMapper {
 
     @Mapping(target = "chatUser", source = "chatUser")
     @Mapping(target = "swearWord", source = "message")
-    public abstract SwearAccounting toSwearAccounting(ChatUser chatUser, String message);
+    @Mapping(target = "chatId", source = "chatId")
+    @Mapping(target = "isGroupChat", source = "isGroupChat")
+    @Mapping(target = "isActive", source = "isActive")
+    public abstract SwearAccounting toSwearAccounting(ChatUser chatUser, String message, Long chatId, Boolean isGroupChat, Boolean isActive);
 }

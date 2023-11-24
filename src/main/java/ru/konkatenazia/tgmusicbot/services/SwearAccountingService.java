@@ -18,10 +18,10 @@ public class SwearAccountingService {
     private final SwearAccountingMapper swearAccountingMapper;
     private final ChatUserRepository chatUserRepository;
 
-    public SwearAccounting saveSwearAccounting(String message, User user) {
+    public SwearAccounting saveSwearAccounting(String message, User user, Long chatId, Boolean isGroupChat, Boolean isActive) {
         var chatUser = chatUserRepository.findById(user.getId());
         if (chatUser.isPresent()) {
-            SwearAccounting swear = swearAccountingMapper.toSwearAccounting(chatUser.get(), message);
+            SwearAccounting swear = swearAccountingMapper.toSwearAccounting(chatUser.get(), message, chatId, isGroupChat, isActive);
             return swearAccountingRepository.save(swear);
         }
         log.info("Пользователь с id {} не найден в БД, ругательство не сохранено!", user.getId());

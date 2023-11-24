@@ -4,9 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Message;
-import ru.konkatenazia.tgmusicbot.mapper.UserMapper;
-import ru.konkatenazia.tgmusicbot.model.SwearAccounting;
-import ru.konkatenazia.tgmusicbot.repository.SwearAccountingRepository;
 import ru.konkatenazia.tgmusicbot.services.MessageProcessingService;
 import ru.konkatenazia.tgmusicbot.services.SwearAccountingService;
 import ru.konkatenazia.tgmusicbot.services.UserService;
@@ -33,7 +30,13 @@ public class MessageProcessor {
             }
 
             if (messageProcessingService.checkForBadWords(messageText) != null) {
-                swearAccountingService.saveSwearAccounting(messageText, user);
+                if (message.getChat().isSuperGroupChat() || message.getChat().isSuperGroupChat()) {
+                    swearAccountingService.saveSwearAccounting(messageText, user, chatId, Boolean.TRUE, Boolean.TRUE);
+                } else {
+                    swearAccountingService.saveSwearAccounting(messageText, user, chatId, Boolean.FALSE, Boolean.FALSE);
+                }
+
+
             }
             if (messageProcessingService.inEnglishKeyLayout(messageText) && !messageProcessingService.isEnglishWord(messageText) && !messageText.startsWith("http")) {
                 log.info("Тут отправляются переведенные кракозябры, текст был {}.", messageText);
