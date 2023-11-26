@@ -27,7 +27,7 @@ public class AsyncConfig {
     private int queueSize;
 
     @Bean(name = "saveMusicAsync")
-    public ExecutorService executeLegalLimitIssueAsync(BeanFactory beanFactory) {
+    public ExecutorService executeSaveMusicAsync(BeanFactory beanFactory) {
         return new ThreadPoolExecutor(
                 corePoolSize,
                 maxPoolSize,

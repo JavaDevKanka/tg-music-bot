@@ -5,10 +5,8 @@ import lombok.Data;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.EnableScheduling;
 
 @Configuration
-@EnableScheduling
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BotConfig {

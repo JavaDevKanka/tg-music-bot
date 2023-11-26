@@ -25,7 +25,6 @@ import java.util.UUID;
 public class Song {
 
     @Id
-    @GeneratedValue
     private UUID id;
 
     private String songName;

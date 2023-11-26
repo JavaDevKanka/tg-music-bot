@@ -1,8 +1,6 @@
-package ru.konkatenazia.tgmusicbot.dto.enums.word;
+package ru.konkatenazia.tgmusicbot.dto.word;
 
 import lombok.Data;
-
-import java.util.List;
 
 @Data
 public class LicenseDTO {

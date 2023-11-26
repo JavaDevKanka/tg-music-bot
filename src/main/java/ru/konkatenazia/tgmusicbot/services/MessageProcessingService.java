@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import ru.konkatenazia.tgmusicbot.dto.enums.InsultResponses;
-import ru.konkatenazia.tgmusicbot.dto.enums.word.WordDTO;
+import ru.konkatenazia.tgmusicbot.dto.word.WordDTO;
 import ru.konkatenazia.tgmusicbot.repository.SwearWordRepository;
 
 import java.io.BufferedReader;
