@@ -30,7 +30,7 @@ public class MessageProcessor {
             }
 
             if (messageProcessingService.checkForBadWords(messageText) != null) {
-                if (message.getChat().isSuperGroupChat() || message.getChat().isSuperGroupChat()) {
+                if (message.getChat().isGroupChat() || message.getChat().isSuperGroupChat()) {
                     swearAccountingService.saveSwearAccounting(messageText, user, chatId, Boolean.TRUE, Boolean.TRUE);
                 } else {
                     swearAccountingService.saveSwearAccounting(messageText, user, chatId, Boolean.FALSE, Boolean.FALSE);
@@ -40,7 +40,7 @@ public class MessageProcessor {
             }
             if (messageProcessingService.inEnglishKeyLayout(messageText) && !messageProcessingService.isEnglishWord(messageText) && !messageText.startsWith("http")) {
                 log.info("Тут отправляются переведенные кракозябры, текст был {}.", messageText);
-//                botHeart.sendMessage(chatId, messageProcessingService.invertKeyboardLayout(messageText), messageId);
+                botHeart.sendMessage(chatId, messageProcessingService.invertKeyboardLayout(messageText), messageId);
             }
         }
     }
