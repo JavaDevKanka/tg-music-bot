@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.konkatenazia.tgmusicbot.mapper.SwearAccountingMapper;
-import ru.konkatenazia.tgmusicbot.model.ChatUser;
 import ru.konkatenazia.tgmusicbot.model.SwearAccounting;
 import ru.konkatenazia.tgmusicbot.repository.ChatUserRepository;
 import ru.konkatenazia.tgmusicbot.repository.SwearAccountingRepository;
