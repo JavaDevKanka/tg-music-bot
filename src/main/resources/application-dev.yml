@@ -36,9 +36,9 @@ spring:
       max-file-size: 400MB
       max-request-size: 400MB
   datasource:
-    url: jdbc:postgresql://localhost:5432/music_bot
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
     hikari:
       schema: mbt
     jpa:
